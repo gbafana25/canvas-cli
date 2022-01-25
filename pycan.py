@@ -5,6 +5,10 @@ from zoneinfo import ZoneInfo
 import json
 
 
+def setup_config():
+	conf = open("config.json", "w+")
+
+
 def get_config():
 	with open("config.json", "r") as c:
 		courses = c.read()
