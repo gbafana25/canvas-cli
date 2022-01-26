@@ -9,9 +9,6 @@ Shows list of upcoming assignments
 - Copy into file called `token`
 
 ## TODO
-- allow for better sorting/filtering by class
 - add option to show assignments without due date (now hardcoded not to)
-- add function for fetching class list
-- add setup function
 
 

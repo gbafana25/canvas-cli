@@ -5,8 +5,20 @@ from zoneinfo import ZoneInfo
 import json
 
 
-def setup_config():
+def setup_config(token):
 	conf = open("config.json", "w+")
+	url = input("Canvas URL (please include '/' at end): ")
+	tzone = input("Time Zone (Country/City): ")
+	headers = {"Authorization": "Bearer " + str(token).strip()}
+	al = requests.get(url+"api/v1/courses?per_page=50", headers=headers)
+	o = json.loads(al.text)
+	ids = []
+	for i in range(len(o)):
+		ids.append(o[i]['id'])
+	s = json.dumps({"courses": ids, "base_url": url, "time_zone": tzone})
+	conf.write(s)
+	conf.close()
+
 
 
 def get_config():
@@ -53,7 +65,7 @@ def get_assignments(token, config, base, time_zone):
 	for c in range(len(config)):
 		get_course_name(str(config[c]), token, base)
 		# paginatation required (per_page) to show all assignments
-		alist = requests.get(base+"api/v1/courses/" + str(config[c]) + "/assignments?per_page=60", headers=headers)
+		alist = requests.get(base+"api/v1/courses/" + str(config[c]) + "/assignments?per_page=70", headers=headers)
 		obj = json.loads(alist.text)
 		for a in range(len(obj)):
 			# don't show assignments without due date or haven't been submitted
@@ -68,17 +80,14 @@ def get_assignments(token, config, base, time_zone):
 			
 
 # test function for specific urls/endpoints
-def get_courses(token):
+def get_courses(token, url):
 	headers = {"Authorization": "Bearer " + str(token).strip()}
-	al = requests.get(base_url+"api/v1/courses/4080/", headers=headers)
+	al = requests.get(url+"api/v1/courses?per_page=50", headers=headers)
 	o = json.loads(al.text)
-	print(o['name'])
-	"""
+	print(o)
 	for i in range(len(o)):
 		print(o[i]['id'], o[i]['name'])
-	#print("Courses showing: " + str(len(o)))
 	print(str(len(o)))
-	"""
 	
 		
 
@@ -86,7 +95,8 @@ tok = get_token()
 conf = get_config()
 tz = ZoneInfo(conf['time_zone'])
 get_assignments(tok, conf['courses'], conf['base_url'], tz)
-#get_courses(tok)
+#get_courses(tok, conf['base_url'])
+#setup_config(tok)
 
 
 
