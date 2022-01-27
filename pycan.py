@@ -3,6 +3,7 @@ import requests
 from datetime import datetime, date, timezone 
 from zoneinfo import ZoneInfo
 import json
+import sys
 
 
 def setup_config(token):
@@ -90,13 +91,12 @@ def get_courses(token, url):
 	print(str(len(o)))
 	
 		
-
 tok = get_token()
-conf = get_config()
-tz = ZoneInfo(conf['time_zone'])
-get_assignments(tok, conf['courses'], conf['base_url'], tz)
-#get_courses(tok, conf['base_url'])
-#setup_config(tok)
 
-
+if(len(sys.argv) == 1):
+	conf = get_config()
+	tz = ZoneInfo(conf['time_zone'])
+	get_assignments(tok, conf['courses'], conf['base_url'], tz)
+elif(sys.argv[1] == "setup"):
+	setup_config(tok)
 
