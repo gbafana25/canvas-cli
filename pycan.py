@@ -40,8 +40,10 @@ def after_today(month_due, day_due, year_due):
 	month = date.today().month 
 	day =  date.today().day
 	year = date.today().year
-	if(month_due == month and day_due >= day):
+	if(month_due == month and day_due >= day and year_due == year):
 			return True
+	if(month_due == month+1 and year_due == year): 
+		return True
 	else:
 		return False
 	"""
@@ -66,7 +68,7 @@ def get_assignments(token, config, base, time_zone):
 	for c in range(len(config)):
 		get_course_name(str(config[c]), token, base)
 		# paginatation required (per_page) to show all assignments
-		alist = requests.get(base+"api/v1/courses/" + str(config[c]) + "/assignments?per_page=70", headers=headers)
+		alist = requests.get(base+"api/v1/courses/" + str(config[c]) + "/assignments?per_page=80", headers=headers)
 		obj = json.loads(alist.text)
 		for a in range(len(obj)):
 			# don't show assignments without due date or haven't been submitted
@@ -77,7 +79,7 @@ def get_assignments(token, config, base, time_zone):
 				due = datetime.strptime(obj[a]['due_at'], "%Y-%m-%dT%H:%M:%S%z")
 				cst = due.astimezone(time_zone)
 				if(after_today(due.month, due.day, due.year)):
-					print(obj[a]['name'], cst.month, "/", cst.day, "/", cst.year)	
+					print(obj[a]['name'], "\033[1;32m", cst.month, "/", cst.day, "/", cst.year, "\033[0m")	
 			
 
 # test function for specific urls/endpoints
