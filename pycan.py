@@ -56,29 +56,36 @@ def get_course_name(n, token, base):
 	headers = {"Authorization": "Bearer " + str(token).strip()}
 	d = requests.get(base+"api/v1/courses/"+n, headers=headers)
 	s = json.loads(d.text)
-	print("\033[1;35m--", s['name'], "--\033[0m")
-
+	try:
+		print("\033[1;35m--", s['name'], "--\033[0m")
+	except KeyError:
+		print("Course id "+str(s['id'])+" access restricted")
+		raise KeyError
+	
 
 
 def get_assignments(token, config, base, time_zone, show):
 	headers = {"Authorization": "Bearer " + str(token).strip()}
 	for c in range(len(config)):
-		get_course_name(str(config[c]), token, base)
-		# paginatation required (per_page) to show all assignments
-		alist = requests.get(base+"api/v1/courses/" + str(config[c]) + "/assignments?per_page=80", headers=headers)
-		obj = json.loads(alist.text)
-		for a in range(len(obj)):
-			# don't show assignments without due date or haven't been submitted
-			if obj[a]['due_at'] == None or obj[a]['has_submitted_submissions']:
-				if show == True:
-					print(obj[a]['name'], "No due date") 
+		try:
+			get_course_name(str(config[c]), token, base)
+			# paginatation required (per_page) to show all assignments
+			alist = requests.get(base+"api/v1/courses/" + str(config[c]) + "/assignments?per_page=80", headers=headers)
+			obj = json.loads(alist.text)
+			for a in range(len(obj)):
+				# don't show assignments without due date or haven't been submitted
+				if obj[a]['due_at'] == None or obj[a]['has_submitted_submissions']:
+					if show == True:
+						print(obj[a]['name'], "No due date") 
+					else:
+						pass
 				else:
-					pass
-			else:
-				due = datetime.strptime(obj[a]['due_at'], "%Y-%m-%dT%H:%M:%S%z")
-				cst = due.astimezone(time_zone)
-				if(after_today(cst.month, cst.day, cst.year)):
-					print(obj[a]['name'], "\033[1;32m", cst.month, "/", cst.day, "/", cst.year, "\033[0m")	
+					due = datetime.strptime(obj[a]['due_at'], "%Y-%m-%dT%H:%M:%S%z")
+					cst = due.astimezone(time_zone)
+					if(after_today(cst.month, cst.day, cst.year)):
+						print(obj[a]['name'], "\033[1;32m", cst.month, "/", cst.day, "/", cst.year, "\033[0m")
+		except KeyError:
+			continue	
 			
 
 # test function for specific urls/endpoints
